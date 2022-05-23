@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        <input type="text" class="username-ipt">
+        <button class="login-btn">登录</button>
+    </div>
+    <div>
+        <input type="text" class="usertext-ipt">
+        <button class="send-btn">发送</button>
+    </div>
+
+    <ul class="message-list"></ul>
+
+    <script>
+        const usernameIpt = document.querySelector('.username-ipt');
+        const userTextIpt = document.querySelector('.usertext-ipt');
+        const sendBtn = document.querySelector('.send-btn');
+        const loginBtn = document.querySelector('.login-btn');
+        const messageList = document.querySelector('.message-list');
+        let ws = new WebSocket('ws://localhost:8001');
+        sendBtn.setAttribute('disabled', true);
+        userTextIpt.setAttribute('disabled', true);
+        function login(e) {
+            ws.send(JSON.stringify({
+                type: 'login',
+                userName: usernameIpt.value,
+            }));
+
+        }
+
+        function send() {
+            ws.send(JSON.stringify({
+                type: 'send',
+                userName: usernameIpt.value,
+                message: userTextIpt.value,
+            }));
+        }
+
+        ws.onopen = function() {
+            console.log('链接建立成功');
+            loginBtn.addEventListener('click', login);
+            sendBtn.addEventListener('click', send);
+        }
+
+        ws.onmessage = function({data}) {
+            const {type, status, message} = JSON.parse(data);
+            if(type === 'login' && status === 200) {
+                messageList.innerHTML += `<li>${message}</li>`;
+                if(usernameIpt.value) {
+                    // 如果登录成功，就可以成功发送消息, 并且不能重新登录
+                    sendBtn.removeAttribute('disabled');
+                    userTextIpt.removeAttribute('disabled');
+                    loginBtn.setAttribute('disabled', true);
+                    usernameIpt.setAttribute('disabled', true);
+                }
+            }
+            if(type === 'send' && status === 200) {
+                messageList.innerHTML += `<li>${message}</li>`;
+            }
+            console.log('接受过来的数据：', data);
+        }
+
+        // ws.send('你是服务端吗？')
+    </script>
+</body>
+</html>

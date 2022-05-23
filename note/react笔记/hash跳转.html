@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <a href="#/">主页</a>
+    <a href="#/home">home</a>
+    <a href="#/index">index</a>
+    <div id='content'></div>
+    <script>
+        class Router{
+            constructor({routes}) {
+                this.routes = routes; //将接收到的参数赋值在当前类中
+                this.everyPath = {}; //定义空对象
+                
+                this.routes.forEach(item => {
+                    this.everyPath[item.path] = function() {
+                        document.getElementById('content').innerHTML = item.component;
+                    }
+                })
+                this.init(); //初始化
+            }
+            //初始化方法
+            init(){
+                //页面加载完毕之后 调用updateLocation方法
+                window.addEventListener('load', this.updateLocation)
+                window.addEventListener('hashchange', this.updateLocation)
+            }
+            updateLocation = ()=>{
+                // {
+                //     '/':() => {},
+                //     '#/home':() => {},
+                    
+                // }
+                //location.hash是指#后的部分 ==> 通过location.hash属性获取或设置hash值
+                //截取#后的内容 ==> my
+                let pathRes = window.location.hash.slice(1);
+                //console.log(this.everyPath, '----', pathRes)
+                this.everyPath[pathRes]();
+            }
+        }
+        new Router({
+            routes: [
+                {
+                    path: '/',
+                    component: '主页'
+                },
+                {
+                    path: '/home',
+                    component: 'home'
+                },
+                {
+                    path: '/index',
+                    component: 'index'
+                }
+            ]
+        })
+    </script>
+</body>
+</html>
