@@ -77,5 +77,59 @@ History 表示浏览器的历史记录，用栈的方式
 
 
 
-检查一下。。。。。。
+# 路由组件
+
+## HashRouter BrowserRouter
+
+通常情况下，Router 组件只有一个，将该组件包裹整个页面
+
+## Route 组件
+
+根据不同的地址，展示不同的组件
+
+重要属性
+
++ path：匹配的路径
+  + 默认情况下不区分大小写。如果要区分路径的大小写，可以设置 sensitive 属性为true 来区分大小写
+  + 默认情况下，只匹配初始目录，如果要精确比配，配置 exact 属性为true
+  + 如果不写path，会匹配任意路径
+
++ element：匹配成功后要展示的组件
+
+Route 组件可以写到任意的地方，只要它是Router元素的后代组件就可以
+
+```jsx
+import React from 'react';
+import { HashRouter, BrowserRouter, Route, Switch } from 'react-router-dom';
+import './App.css';
+
+function CompA() {
+  return <div>组件A</div>
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Switch>
+          <Route sensitive exact path='/a' element={<CompA></CompA>} >
+          	<h1>一定会看到的内容</h1> // 有可能当前的路径是 /efg
+          </Route>
+         <Route sensitive exact path='/a/b' component={CompB} />
+       </Switch>
+    </BrowserRouter>
+  );
+}
+
+export default App;
+```
+
+
+
+## Switch 组件
+
+写到 Switch 组件中的Router组件，当匹配到第一个Route组件后，会立即停止匹配
+
+由于Switch会循环所有子元素，然后让每一个子元素去完成匹配，若匹配到，则渲染对应的组件，然后停止循环。因此，不能在 Switch 的子元素中，使用除Route外的其他组件。
+
+
 
