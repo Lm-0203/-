@@ -90,9 +90,20 @@ History 表示浏览器的历史记录，用栈的方式
 重要属性
 
 + path：匹配的路径
+
   + 默认情况下不区分大小写。如果要区分路径的大小写，可以设置 sensitive 属性为true 来区分大小写
+
   + 默认情况下，只匹配初始目录，如果要精确比配，配置 exact 属性为true
+
   + 如果不写path，会匹配任意路径
+
+  + path 可以写数组
+
+    ```jsx
+    <Route path={['/news', '/news/:year/:month/:day', '/n']}>
+    ```
+
+    
 
 + element：匹配成功后要展示的组件
 
@@ -132,4 +143,84 @@ export default App;
 由于Switch会循环所有子元素，然后让每一个子元素去完成匹配，若匹配到，则渲染对应的组件，然后停止循环。因此，不能在 Switch 的子元素中，使用除Route外的其他组件。
 
 
+
+# 路由信息
+
+Router 组件会创建一个上下文，并且，向上下文中注入一些信息。
+
+该上下文对开发者是隐藏的。
+
+Router 组件如果匹配到了地址，会将这些上下文中的信息，作为属性，传入对应的组件。
+
+我们通常使用第三方库 query-string，用来解析一些参数
+
+react-router 使用了第三方库：Path-to-RegExp。该库将一个字符串正则转换成真正的正则表达式。
+
+## history
+
+并不是window.history对象，可以利用该对象无刷新跳转地址
+
+> **为什么没有直接使用window.history对象**
+>
+> + React-Router 中有两种模式：Hash，History，如果直接使用 window.history，只能支持一种模式，如果要使用另一种模式，可能是另一种格式的代码
+> + 当使用window.history.pushState方法时，没有办法收到任何通知，将导致React没有办法知道地址发生了变化，就没有办法刷新组件
+> + 
+
++ push： 将某个新的地址入栈（历史记录栈）
+  + props.history.push('/b'); // 只能写相对路径，不能写绝对路径
+  + 参数1：新的地址
+  + 参数2：可选，附加的状态数据
+    + 获取状态数据  history.location.state
++ replace：将某个新的地址替换掉当前栈中的地址
+
+
+
+## location
+
+props.location === props.history.locaiton => true
+
+但是和window.location 不一样
+
+location 对象中记录了当前地址的相关信息
+
++ hash
++ pathname
++ search
++ state
+
+
+
+## match
+
+该对象中保存了路由匹配的相关信息
+
++ params：获取路由规则中对应的数据
++ isExact：事实上，当前的路径和路由配置的路径是否是精确匹配的
+
+
+
+## 向某个页面传入数据的方式
+
+1. 使用state：在push页面时，加入state参数，
+
+2. 利用search：把数据填写到地址栏中的问号后
+
+3. 利用hash：把数据填写到hash后
+
+4. 利用params：把数据填写到路径（string pattern）中 /news/:year/:month/:day 
+
+   ```jsx
+   // 页面地址url也必须是完整的，/news/2022/06/16, 如果只有 /news 的话，会找不到页面
+   // 不是一定要用斜杠 也可以 /news-:year-:month-:day
+   // 加问号代表可传可不传 /news/:year?/:month?/:day? 这种情况下，就可以用 /news 匹配到对应的路由组件
+   <Route path='/news/:year/:month/:day' />
+   <Route path='/news/:year(\d+)/*' exact /> // 对应 /news/2022/xxxx
+   ```
+
+
+
+非路由组件获取路由信息
+
++ 将路由信息从父组件，一层一层传递给子组件
++ 使用react-router提供的高阶组件，包装要使用的组件，该组件返回一个新组件，新组件向提供的组件注入路由信息。
 
